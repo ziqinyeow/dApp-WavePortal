@@ -18,4 +18,10 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  */
 module.exports = {
   solidity: "0.8.4",
+  networks: {
+    rinkeby: {
+      url: process.env.NEXT_PUBLIC_ALCHEMY_API_URL,
+      accounts: [process.env.RINKEBY_ACCOUNT_KEY],
+    },
+  },
 };
