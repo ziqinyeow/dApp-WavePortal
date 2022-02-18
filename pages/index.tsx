@@ -6,7 +6,7 @@ import abi from "../abi/WavePortal.json";
 import { toast, Toaster } from "react-hot-toast";
 
 export default function Home() {
-  const contractAddress = "0xB7695579f0d5bD1e7864e3D0Ac538830288Cf47a";
+  const contractAddress = "0x34940e89AC035BC284B25Ede602e0B6E93119a16";
   const contractABI = abi.abi;
   const [currentAccount, setCurrentAccount] = useState("");
   const [allWaves, setAllWaves] = useState([]);

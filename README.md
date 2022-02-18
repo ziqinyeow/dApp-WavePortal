@@ -4,6 +4,8 @@ Smart Contract written in Solidity deployed on Rinkeby chain in Alchemy API Back
 
 Applications that people can send messages to me or waving at me. All the data is stored in the blockchain.
 
+This is the smart contract on [etherscan.io](https://etherscan.io/address/0x34940e89AC035BC284B25Ede602e0B6E93119a16)
+
 ```shell
 npx hardhat accounts
 npx hardhat compile
