@@ -1,8 +1,8 @@
-# Basic Sample Hardhat Project
+# Basic Hardhat and Next.js Projects
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+Smart Contract written in Solidity deployed on Rinkeby chain in Alchemy API Backend using Hardhat wired up with Next.js and Tailwind frontend.
 
-Try running some of the following tasks:
+Applications that people can send messages to me or waving at me. All the data is stored in the blockchain.
 
 ```shell
 npx hardhat accounts
@@ -12,4 +12,10 @@ npx hardhat test
 npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
+```
+
+```shell
+yarn hardhat init
+yarn hardhat run scripts/run.js
+yarn hardhat run scripts/deploy --network rinkeby
 ```

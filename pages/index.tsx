@@ -6,7 +6,7 @@ import abi from "../abi/WavePortal.json";
 import { toast, Toaster } from "react-hot-toast";
 
 export default function Home() {
-  const contractAddress = "0x7e8527b20D99439647eB0eD21678aE4C40A8e0A8";
+  const contractAddress = "0xB7695579f0d5bD1e7864e3D0Ac538830288Cf47a";
   const contractABI = abi.abi;
   const [currentAccount, setCurrentAccount] = useState("");
   const [allWaves, setAllWaves] = useState([]);
@@ -46,27 +46,16 @@ export default function Home() {
           signer
         );
 
-        /*
-         * Call the getAllWaves method from your Smart Contract
-         */
         const waves = await wavePortalContract.getAllWaves();
 
-        /*
-         * We only need address, timestamp, and message in our UI so let's
-         * pick those out
-         */
-        let wavesCleaned: any = [];
-        waves.forEach((wave: any) => {
-          wavesCleaned.push({
+        const wavesCleaned = waves.map((wave: any) => {
+          return {
             address: wave.waver,
-            timestamp: new Date(wave.timestamp * 1000).toUTCString(),
+            timestamp: new Date(wave.timestamp * 1000),
             message: wave.message,
-          });
+          };
         });
 
-        /*
-         * Store our data in React State
-         */
         setAllWaves(wavesCleaned);
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -93,10 +82,9 @@ export default function Home() {
         let count = await wavePortalContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
 
-        /*
-         * Execute the actual wave from your smart contract
-         */
-        const waveTxn = await wavePortalContract.wave(message);
+        const waveTxn = await wavePortalContract.wave(message, {
+          gasLimit: 300000,
+        });
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
@@ -107,10 +95,9 @@ export default function Home() {
       } else {
         console.log("Ethereum object doesn't exist!");
       }
-      getAllWaves();
     } catch (error) {
-      throw new Error();
       console.log(error);
+      throw new Error();
     }
     setMessage("");
   };
@@ -126,9 +113,6 @@ export default function Home() {
         console.log("We have the ethereum object", ethereum);
       }
 
-      /*
-       * Check if we're authorized to access the user's wallet
-       */
       const accounts = await ethereum.request({ method: "eth_accounts" });
 
       if (accounts.length !== 0) {
@@ -146,6 +130,49 @@ export default function Home() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    if (window.ethereum) {
+      window.ethereum.on("chainChanged", () => {
+        window.location.reload();
+      });
+      window.ethereum.on("accountsChanged", () => {
+        window.location.reload();
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    let wavePortalContract: any;
+
+    const onNewWave = (from: any, timestamp: any, message: any) => {
+      console.log("NewWave", from, timestamp, message);
+      // @ts-ignore
+      setAllWaves((prevState) => [
+        ...prevState,
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+      ]);
+    };
+
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      wavePortalContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+      wavePortalContract.on("NewWave", onNewWave);
+    }
+
+    return () => {
+      if (wavePortalContract) {
+        wavePortalContract.off("NewWave", onNewWave);
+      }
+    };
   }, []);
 
   return (
@@ -156,7 +183,7 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center flex-1 w-full px-20 text-center">
-        <div className="h-[50vh] space-y-5 pt-10">
+        <div className="flex h-[60vh] flex-col justify-center space-y-5">
           <motion.div
             animate={{ rotate: 20 }}
             transition={{
@@ -216,11 +243,15 @@ export default function Home() {
           )}
         </div>
 
-        <div className="grid w-full grid-cols-3 gap-2 p-2 mb-5 bg-gradient-to-br from-blue-50 to-red-50">
-          <h2 className="text-xl font-medium">Address</h2>
-          <h2 className="text-xl font-medium">Time</h2>
-          <h2 className="text-xl font-medium">Message</h2>
-        </div>
+        {allWaves.length !== 0 ? (
+          <div className="grid w-full grid-cols-3 gap-2 p-2 mb-5 bg-gradient-to-br from-blue-50 to-red-50">
+            <h2 className="text-xl font-medium">Address</h2>
+            <h2 className="text-xl font-medium">Time</h2>
+            <h2 className="text-xl font-medium">Message</h2>
+          </div>
+        ) : (
+          <div>Make sure your are on Rinkeby Test Net</div>
+        )}
 
         <div className="w-full mb-10">
           {[...allWaves].reverse().map((wave: any, index) => {
