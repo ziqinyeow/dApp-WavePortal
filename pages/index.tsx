@@ -195,7 +195,7 @@ export default function Home() {
                   toast.promise(wave(), {
                     loading: "Waving...",
                     success: "Successfully waved!",
-                    error: "Unable to waved!",
+                    error: "Unable to wave!",
                   });
                 }}
               >
@@ -223,7 +223,7 @@ export default function Home() {
         </div>
 
         <div className="w-full mb-10">
-          {allWaves.map((wave: any, index) => {
+          {[...allWaves].reverse().map((wave: any, index) => {
             return (
               <div
                 key={index}
